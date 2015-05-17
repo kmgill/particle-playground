@@ -89,9 +89,9 @@ public class ParticleGJPanel extends GLJPanel implements GLEventListener, KeyLis
 
 		examineView.setModelRadius(.5);
 		examineView.setMaxScale((examineView.getDistance() - radius) / radius);
-		examineView.rotate(-90, 0);
-		examineView.rotate(0, 90);
-		examineView.rotate(-30, 0);
+		//examineView.rotate(-90, 0);
+		//examineView.rotate(0, 90);
+		//examineView.rotate(-30, 0);
 		
 		examineView.addModelViewChangeListener(new ModelViewChangeListener()
 		{
@@ -376,7 +376,7 @@ private Ephemeris calculateParticleEphemeris(Particle particle, Particle centere
 				examineView.setPitch(examineView.getPitch() + deltaY * rotateSpeed);
 				examineView.setRoll(examineView.getRoll() + deltaX * rotateSpeed);
 			} else {
-				examineView.rotate(deltaY * rotateSpeed, deltaX * rotateSpeed);
+				examineView.rotate(-deltaY * rotateSpeed, -deltaX * rotateSpeed);
 			}
 
 			repaint();

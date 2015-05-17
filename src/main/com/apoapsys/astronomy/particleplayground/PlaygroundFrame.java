@@ -10,6 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 
 import com.apoapsys.astronomy.math.Vector;
@@ -38,12 +39,19 @@ public class PlaygroundFrame extends JFrame {
 		simPanel = new ParticleGJPanel(simulator);
 		add(simPanel, BorderLayout.CENTER);
 		
+		JTabbedPane tabbedPane = new JTabbedPane();
+		
+		JPanel forcesPanel = new JPanel();
+		tabbedPane.add("Forces", forcesPanel);
+		
+		
 		emitterPropertiesPanel = new JPanel();
 		emitterPropertiesPanel.setLayout(new GridLayout(3, 1, 3, 3));
 		
 		JScrollPane scroll = new JScrollPane(emitterPropertiesPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		tabbedPane.add("Emitters", scroll);
 		
-		add(scroll, BorderLayout.EAST);
+		add(tabbedPane, BorderLayout.EAST);
 		
 		JToolBar toolbar = new JToolBar();
 		add(toolbar, BorderLayout.NORTH);
