@@ -1,6 +1,7 @@
 package com.apoapsys.astronomy.particleplayground;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,7 +17,6 @@ import javax.swing.JToolBar;
 import com.apoapsys.astronomy.math.Vector;
 import com.apoapsys.astronomy.simulations.nbody.Particle;
 import com.apoapsys.astronomy.simulations.nbody.leapfrog.LeapFrogSimulator;
-import com.jogamp.opengl.util.Animator;
 import com.jogamp.opengl.util.FPSAnimator;
 
 public class PlaygroundFrame extends JFrame {
@@ -26,7 +26,7 @@ public class PlaygroundFrame extends JFrame {
 	
 	private JPanel emitterPropertiesPanel;
 	
-	public PlaygroundFrame(LeapFrogSimulator simulator) {
+	public PlaygroundFrame(final LeapFrogSimulator simulator) {
 		setTitle("Particle Playground");
 		setSize(500, 500);
 		setLocationRelativeTo(null);
@@ -56,6 +56,15 @@ public class PlaygroundFrame extends JFrame {
 		JToolBar toolbar = new JToolBar();
 		add(toolbar, BorderLayout.NORTH);
 		
+		JButton btnCreateCenter = new JButton("Create Center Particle");
+		toolbar.add(btnCreateCenter);
+		btnCreateCenter.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				createBasicCenterParticle();
+			}
+		});
+		
 		JButton btnAddEmitter = new JButton("New Emitter");
 		toolbar.add(btnAddEmitter);
 		btnAddEmitter.addActionListener(new ActionListener() {
@@ -69,9 +78,38 @@ public class PlaygroundFrame extends JFrame {
 			}
 		});
 		
+		JButton btnCreateSolarSystem = new JButton("Create Solar System");
+		toolbar.add(btnCreateSolarSystem);
+		btnCreateSolarSystem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				createSolarSystem();
+			}
+		});
+		
+		
 		final FPSAnimator animator = new FPSAnimator(simPanel, 60);
 		animator.start();
 		
+	}
+	
+	protected void createSolarSystem() {
+		try {
+			SolarSystemCreator.create(simulator);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	protected void createBasicCenterParticle() {
+		ParticleEmitter emitter0 = new ParticleEmitter();
+		emitter0.setColor(Color.YELLOW);
+		emitter0.setLocation(new Vector(0, 0, 0));
+		emitter0.setFacing(new Vector(0, 0, 0));
+		emitter0.setMass(270000000000.0);
+		emitter0.setVelocity(0.0);
+		emitter0.setRadius(4.0);
+		simulator.addParticle(emitter0.createParticle());
 	}
 	
 	public void addParticleEmitter(ParticleEmitter particleEmitter) {

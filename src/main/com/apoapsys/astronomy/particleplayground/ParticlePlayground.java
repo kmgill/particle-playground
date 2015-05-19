@@ -1,9 +1,7 @@
 package com.apoapsys.astronomy.particleplayground;
 
-import java.awt.Color;
 import java.util.List;
 
-import com.apoapsys.astronomy.math.Vector;
 import com.apoapsys.astronomy.simulations.nbody.Particle;
 import com.apoapsys.astronomy.simulations.nbody.leapfrog.Collision;
 import com.apoapsys.astronomy.simulations.nbody.leapfrog.LeapFrogSimulator;
@@ -14,39 +12,15 @@ public class ParticlePlayground {
 	public static void main(String[] args) {
 		
 		final LeapFrogSimulator simulator = new LeapFrogSimulator();
-		simulator.setCheckingForCollisions(true);
+		simulator.setCheckingForCollisions(false);
 		simulator.addSimulationForceProvider(new NewtonianGravityForceProviderImpl());
-		
-		ParticleEmitter emitter0 = new ParticleEmitter();
-		emitter0.setColor(Color.YELLOW);
-		emitter0.setLocation(new Vector(0, 0, 0));
-		emitter0.setFacing(new Vector(0, 0, 0));
-		emitter0.setMass(270000000000.0);
-		emitter0.setVelocity(0.0);
-		emitter0.setRadius(4.0);
-		simulator.addParticle(emitter0.createParticle());
-		
-		/*
-		ParticleEmitter emitter0 = new ParticleEmitter();
-		emitter0.setLocation(new Vector(0, 0, 8));
-		emitter0.setFacing(new Vector(-1, 0, -.1));
-		emitter0.setMass(270000000000.0);
-		emitter0.setVelocity(1.0);
-		simulator.addParticle(emitter0.createParticle());
-		
-		ParticleEmitter emitter1 = new ParticleEmitter();
-		emitter1.setLocation(new Vector(0, 0, -8));
-		emitter1.setFacing(new Vector(1, 0, .1));
-		emitter1.setMass(270000000000.0);
-		emitter1.setVelocity(1.0);
-		simulator.addParticle(emitter1.createParticle());
 
-		final ParticleEmitter emitter2 = new ParticleEmitter();
-		emitter2.setLocation(new Vector(0, 0, 0));
-		emitter2.setFacing(new Vector(1, 0, 0));
-		emitter2.setMass(270000000.0);
-		emitter2.setVelocity(.1);
-		*/
+		try {
+			SolarSystemCreator.create(simulator);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		Thread simThread = new Thread() {
 
@@ -57,7 +31,7 @@ public class ParticlePlayground {
 				while(true) {
 					double now = System.currentTimeMillis();
 					
-					List<Collision> collisions = simulator.step((now - last) / 10.0);
+					List<Collision> collisions = simulator.step((now - last));
 					last = now;
 					
 					if (collisions != null) {
@@ -76,11 +50,11 @@ public class ParticlePlayground {
 					}
 					
 					
-					try {
-						Thread.sleep(10);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+					//try {
+						//Thread.sleep(10);
+				//	} catch (InterruptedException e) {
+					//	e.printStackTrace();
+					//}
 				}
 			}
 		};
@@ -90,9 +64,6 @@ public class ParticlePlayground {
 		
 		
 		PlaygroundFrame frame = new PlaygroundFrame(simulator);
-		//frame.addParticleEmitter(emitter0);
-		//frame.addParticleEmitter(emitter1);
-		//frame.addParticleEmitter(emitter2);
 		frame.setVisible(true);
 		
 		

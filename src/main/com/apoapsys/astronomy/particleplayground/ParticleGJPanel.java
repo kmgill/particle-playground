@@ -2,11 +2,8 @@ package com.apoapsys.astronomy.particleplayground;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Robot;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -14,11 +11,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.awt.geom.Path2D;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.Timer;
 
 import com.apoapsys.astronomy.Constants;
 import com.apoapsys.astronomy.math.Matrix;
@@ -84,8 +78,8 @@ public class ParticleGJPanel extends GLJPanel implements GLEventListener, KeyLis
 		
 		examineView = new ExamineView();
 		examineView.setMinDistance(1);
-		examineView.setMaxDistance(10000);
-		examineView.setDistance(200);
+		examineView.setMaxDistance(20000);
+		examineView.setDistance(500);
 
 		examineView.setModelRadius(.5);
 		examineView.setMaxScale((examineView.getDistance() - radius) / radius);
@@ -125,7 +119,7 @@ public class ParticleGJPanel extends GLJPanel implements GLEventListener, KeyLis
 	    glu.gluLookAt(0, 0, examineView.getDistance(), 0, 0, 0, 0, 1, 0);
 	    gl.glMultMatrixd(examineView.getModelView().matrix, 0);
 	    
-	    Particle centerOn = simulator.getParticles().get(0);
+	    Particle centerOn = (simulator.getParticles().size() > 0) ? simulator.getParticles().get(0) : null;
 	    
 	    //gl.glMatrixMode(GL2.GL_PROJECTION);
 	    //gl.glLoadIdentity();
@@ -135,7 +129,9 @@ public class ParticleGJPanel extends GLJPanel implements GLEventListener, KeyLis
 	    //gl.glMatrixMode(GL2.GL_MODELVIEW);
 	    //gl.glLoadIdentity();
 	    
-	    gl.glTranslated(-centerOn.position.x, -centerOn.position.y, -centerOn.position.z);
+	    if (centerOn != null) {
+	    	//gl.glTranslated(-centerOn.position.x, -centerOn.position.y, -centerOn.position.z);
+	    }
 	    
 	    gl.glPushMatrix();
 	    gl.glDisable(GL2.GL_LIGHTING);
@@ -182,10 +178,10 @@ public class ParticleGJPanel extends GLJPanel implements GLEventListener, KeyLis
 				OrbitPosition pos = orbit.positionAtTime(dt);
 				Vector posVector = pos.getPosition();
 				posVector.multiplyScalar(Constants.AU_TO_KM * 1000);
+				Vector position = posVector.clone().divideScalar(10E8);
+				//position.add(centerOnParticle.position);
 				
-				posVector.add(centerOnParticle.position);
-				
-				gl.glVertex3f((float)posVector.x, (float)posVector.y, (float)posVector.z);
+				gl.glVertex3f((float)position.x, (float)position.y, (float)position.z);
 				
 				
 			}
@@ -194,7 +190,7 @@ public class ParticleGJPanel extends GLJPanel implements GLEventListener, KeyLis
 		}
 	}
 	
-private Ephemeris calculateParticleEphemeris(Particle particle, Particle centeredOn) {
+	private Ephemeris calculateParticleEphemeris(Particle particle, Particle centeredOn) {
 		
 		if (centeredOn == null) {
 			return null;
@@ -228,14 +224,25 @@ private Ephemeris calculateParticleEphemeris(Particle particle, Particle centere
 		
 
 		gl.glColor3f(1, 0, 0);
-		gl.glTranslatef((float)particle.position.x, (float)particle.position.y, (float)particle.position.z);
+		
+		//System.err.println(particle.position.length() / Constants.AU_TO_KM / 10.0);
+		
+		Vector position = particle.position.clone().divideScalar(10E8);//.divideScalar(Constants.AU_TO_KM).divideScalar(10.0);
+		
+		if (particle.body.getName().equals("Mercury")) {
+		//	System.err.println(position.length());
+		}
+		
+		gl.glTranslatef((float)position.x, (float)position.y, (float)position.z);
 		
 		Color c = (Color) particle.extendedProperties.get("color");
 		c = (c != null) ? c : Color.gray;
 		
-		float red[] = { c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f, 0.7f };
-		gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, red, 0);
-		glut.glutSolidSphere(particle.body.getRadius(), 64, 32);
+		float radius = 1.0f;//(float) ((particle.body.getRadius() >= 1.0) ? particle.body.getRadius() : 10.0);
+		
+		float color[] = { c.getRed() / 255.0f, c.getGreen() / 255.0f, c.getBlue() / 255.0f, 0.7f };
+		gl.glLightfv(GL2.GL_LIGHT0, GL2.GL_DIFFUSE, color, 0);
+		glut.glutSolidSphere(radius, 64, 32);
 
 		
 		gl.glPopMatrix();
