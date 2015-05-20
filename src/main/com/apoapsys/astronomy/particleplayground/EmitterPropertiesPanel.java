@@ -10,13 +10,12 @@ import java.awt.event.MouseEvent;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import com.apoapsys.astronomy.math.Vector;
 
-public class EmitterPropertiesPanel extends JPanel {
+public class EmitterPropertiesPanel extends AbstractOptionPanel {
 	
 	private ParticleEmitter particleEmitter;
 	
@@ -40,48 +39,24 @@ public class EmitterPropertiesPanel extends JPanel {
 		setLayout(new GridLayout(7, 1));
 		
 		this.setBorder(BorderFactory.createTitledBorder("Particle Emitter"));
+
+		add(createLabeledPanel("Location:", 
+				locationX = new JTextField(""+particleEmitter.getLocation().x),
+				locationY = new JTextField(""+particleEmitter.getLocation().y),
+				locationZ = new JTextField(""+particleEmitter.getLocation().z)));
 		
-		JPanel locationPanel = new JPanel();
-		locationPanel.setLayout(new GridLayout(1, 4));
-		locationPanel.add(new JLabel("Location:"));
-		locationPanel.add(locationX = new JTextField(""+particleEmitter.getLocation().x));
-		locationPanel.add(locationY = new JTextField(""+particleEmitter.getLocation().y));
-		locationPanel.add(locationZ = new JTextField(""+particleEmitter.getLocation().z));
-		add(locationPanel);
+		add(createLabeledPanel("Facing:", 
+				facingX = new JTextField(""+particleEmitter.getFacing().x),
+				facingY = new JTextField(""+particleEmitter.getFacing().y),
+				facingZ = new JTextField(""+particleEmitter.getFacing().z)));
 		
-		JPanel facingPanel = new JPanel();
-		facingPanel.setLayout(new GridLayout(1, 4));
-		facingPanel.add(new JLabel("Facing:"));
-		facingPanel.add(facingX = new JTextField(""+particleEmitter.getFacing().x));
-		facingPanel.add(facingY = new JTextField(""+particleEmitter.getFacing().y));
-		facingPanel.add(facingZ = new JTextField(""+particleEmitter.getFacing().z));
-		add(facingPanel);
+		add(createLabeledPanel("Velocity:", velocity = new JTextField(""+particleEmitter.getVelocity())));
+		add(createLabeledPanel("Mass:", mass = new JTextField(""+particleEmitter.getMass())));
+		add(createLabeledPanel("Radius:", radius = new JTextField(""+particleEmitter.getRadius())));
 		
-		JPanel velocityPanel = new JPanel();
-		velocityPanel.setLayout(new GridLayout(1, 2));
-		velocityPanel.add(new JLabel("Velocity:"));
-		velocityPanel.add(velocity = new JTextField(""+particleEmitter.getVelocity()));
-		add(velocityPanel);
 		
-		JPanel massPanel = new JPanel();
-		massPanel.setLayout(new GridLayout(1, 2));
-		massPanel.add(new JLabel("Mass:"));
-		massPanel.add(mass = new JTextField(""+particleEmitter.getMass()));
-		add(massPanel);
-		
-		JPanel radiusPanel = new JPanel();
-		radiusPanel.setLayout(new GridLayout(1, 2));
-		radiusPanel.add(new JLabel("Radius:"));
-		radiusPanel.add(radius = new JTextField(""+particleEmitter.getRadius()));
-		add(radiusPanel);
-		
-		JPanel colorPanel = new JPanel();
-		colorPanel.setLayout(new GridLayout(1, 2));
-		add(colorPanel);
-		colorPanel.add(new JLabel("Color:"));
 		color = new JPanel();
 		color.setBackground(particleEmitter.getColor());
-		colorPanel.add(color);
 		color.addMouseListener(new MouseAdapter() {
 
 			@Override
@@ -95,13 +70,10 @@ public class EmitterPropertiesPanel extends JPanel {
 			}
 			
 		});
-		
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new GridLayout(1, 2));
-		add(buttonPanel);
+		add(createLabeledPanel("Color:", color));
+
 		
 		JButton btnCreate = new JButton("Add Particle");
-		buttonPanel.add(btnCreate);
 		btnCreate.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -110,13 +82,14 @@ public class EmitterPropertiesPanel extends JPanel {
 		});
 		
 		JButton btnUpdate = new JButton("Update Emitter");
-		buttonPanel.add(btnUpdate);
 		btnUpdate.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				updateEmitterFromComponents();
 			}
 		});
+		add(createPanel(btnCreate, btnUpdate));
+		
 		
 		particleEmitter.addPropertyListener(new EmitterPropertiesListener() {
 
@@ -146,10 +119,6 @@ public class EmitterPropertiesPanel extends JPanel {
 		
 		
 		normalizeFacingValues();
-	}
-	
-	private double getValueFromComponent(JTextField component) {
-		return Double.parseDouble(component.getText());
 	}
 	
 	public void normalizeFacingValues() {

@@ -57,7 +57,7 @@ public class SolarSystemCreator {
 	}
 	
 	
-	protected static void createParticle(LeapFrogSimulator sim, OrbitingBody orbitingBody, DateTime dt, Particle parent) {
+	protected static void createParticle(LeapFrogSimulator sim, OrbitingBody orbitingBody, DateTime dt, Particle parent, boolean includeMoons) {
 		if (orbitingBody.getMass() == 0) {
 			return;
 		}
@@ -73,14 +73,16 @@ public class SolarSystemCreator {
 		
 		sim.addParticle(bodyState);
 		
-		for (Body moon : orbitingBody.getOrbitingBodies()) {
-			OrbitingBody orbitingMoon = (OrbitingBody) moon;
-			createParticle(sim, orbitingMoon, dt, bodyState);
+		if (includeMoons) {
+			for (Body moon : orbitingBody.getOrbitingBodies()) {
+				OrbitingBody orbitingMoon = (OrbitingBody) moon;
+				createParticle(sim, orbitingMoon, dt, bodyState, includeMoons);
+			}
 		}
 		
 	}
 	
-	public static void create(LeapFrogSimulator sim) throws Exception {
+	public static void create(LeapFrogSimulator sim, boolean includeMoons) throws Exception {
 		
 		List<Body> bodies = MajorBodiesLoader.load();
 		DateTime dt = new DateTime();
@@ -90,7 +92,7 @@ public class SolarSystemCreator {
 			////if (body.getName().equalsIgnoreCase("sun")) {
 			//	continue;
 			//}
-			createParticle(sim, orbitingBody, dt, null);
+			createParticle(sim, orbitingBody, dt, null, includeMoons);
 			System.err.println("Adding " + orbitingBody.getName());
 		}
 		

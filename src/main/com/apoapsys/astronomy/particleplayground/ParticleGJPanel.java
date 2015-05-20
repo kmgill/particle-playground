@@ -43,9 +43,12 @@ public class ParticleGJPanel extends GLJPanel implements GLEventListener, KeyLis
 	
 	private ExamineView examineView;
 	
+	private boolean showOrbits = true;
+	private boolean showGrid = true;
+	
 	private double radius = .5;
 	private double rotateSpeed = 0.2;
-	private double zoomSpeed = 0.2;
+	private double zoomSpeed = 2.0;
 	
 	private boolean hideMouse = false;
 	private boolean captureMouse = false;
@@ -120,28 +123,27 @@ public class ParticleGJPanel extends GLJPanel implements GLEventListener, KeyLis
 	    gl.glMultMatrixd(examineView.getModelView().matrix, 0);
 	    
 	    Particle centerOn = (simulator.getParticles().size() > 0) ? simulator.getParticles().get(0) : null;
-	    
-	    //gl.glMatrixMode(GL2.GL_PROJECTION);
-	    //gl.glLoadIdentity();
-	    //gl.glOrtho(-1,1,-1,1,-2,2);
-	    
-	    //glu.gluLookAt(0, 0, 10, 00, 0, 0, 0, 1, 0);
-	    //gl.glMatrixMode(GL2.GL_MODELVIEW);
-	    //gl.glLoadIdentity();
-	    
+
 	    if (centerOn != null) {
 	    	//gl.glTranslated(-centerOn.position.x, -centerOn.position.y, -centerOn.position.z);
 	    }
 	    
-	    gl.glPushMatrix();
-	    gl.glDisable(GL2.GL_LIGHTING);
-	    for (Particle particle : simulator.getParticles()) {
-			if (centerOn != null && particle != centerOn) {
-				drawEphemerisLine(particle, centerOn, gl);
+	    
+	    if (showGrid) {
+	    	drawGrid(gl);
+	    }
+	    
+	    if (showOrbits) {
+		    gl.glPushMatrix();
+		    gl.glDisable(GL2.GL_LIGHTING);
+		    for (Particle particle : simulator.getParticles()) {
+				if (centerOn != null && particle != centerOn) {
+					drawEphemerisLine(particle, centerOn, gl);
+				}
 			}
-		}
-	    gl.glEnable(GL2.GL_LIGHTING);
-	    gl.glPopMatrix();
+		    gl.glEnable(GL2.GL_LIGHTING);
+		    gl.glPopMatrix();
+	    }
 	    
 	    gl.glPushMatrix();
 	    for (Particle particle : simulator.getParticles()) {
@@ -159,6 +161,30 @@ public class ParticleGJPanel extends GLJPanel implements GLEventListener, KeyLis
 	    
 	}
 	
+	
+	private void drawGrid(GL2 gl) {
+		gl.glDisable(GL2.GL_LIGHTING);
+		
+		gl.glColor4f(1.0f, 1.0f, 0.0f, 0.3f);
+		
+		// Arbitraty values for now...
+		gl.glBegin(GL2.GL_LINES);
+		for (float v = -10000; v < 10000; v+= 100) {
+			gl.glVertex3f(v, 0.0f, 10000f);
+			gl.glVertex3f(v, 0.0f, -10000f);
+			
+			gl.glVertex3f(-10000f, 0.0f, v);
+			gl.glVertex3f(10000f, 0.0f, v);
+		}
+		gl.glEnd();
+		
+		
+		
+		
+		
+		gl.glEnable(GL2.GL_LIGHTING);
+	}
+	
 	private void drawEphemerisLine(Particle particle, Particle centerOnParticle, GL2 gl) {
 		Ephemeris eph = calculateParticleEphemeris(particle, centerOnParticle);
 		if (eph == null) {
@@ -172,6 +198,7 @@ public class ParticleGJPanel extends GLJPanel implements GLEventListener, KeyLis
 			double step = eph.period / 360.0 / 4.0;
 			
 			gl.glBegin(GL2.GL_LINE_STRIP);
+			gl.glColor3f(1.0f, 0.0f, 0.0f);
 			int k = 0;
 			for (double jd = eph.epoch; jd < eph.epoch + eph.period + step; jd+=step) {
 				DateTime dt = new DateTime(jd);
@@ -281,7 +308,7 @@ public class ParticleGJPanel extends GLJPanel implements GLEventListener, KeyLis
 	    gl.glEnable(GL2.GL_LIGHTING);
 	    gl.glEnable(GL2.GL_LIGHT0);
 	    gl.glEnable(GL2.GL_DEPTH_TEST);
-	    //gl.glEnable(GL.GL_MULTISAMPLE);
+	    gl.glEnable(GL.GL_MULTISAMPLE);
 	    gl.glShadeModel(GL2.GL_SMOOTH);
 	    gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_FASTEST);
 	    gl.glHint(GL2.GL_POLYGON_SMOOTH_HINT, GL.GL_FASTEST);
@@ -305,7 +332,7 @@ public class ParticleGJPanel extends GLJPanel implements GLEventListener, KeyLis
 		glu.gluPerspective(45,
 				aspect,
 			 	0.01,
-			 	1000);
+			 	100000);
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
 		gl.glLoadIdentity();
 		
@@ -469,5 +496,22 @@ public class ParticleGJPanel extends GLJPanel implements GLEventListener, KeyLis
 		examineView.setDistance(examineView.getDistance() + (c * zoomSpeed));
 		examineView.setMaxScale((examineView.getDistance() - radius) / radius);
 	}
+
+	public boolean getShowOrbits() {
+		return showOrbits;
+	}
+
+	public void setShowOrbits(boolean showOrbits) {
+		this.showOrbits = showOrbits;
+	}
+
+	public boolean getShowGrid() {
+		return showGrid;
+	}
+
+	public void setShowGrid(boolean showGrid) {
+		this.showGrid = showGrid;
+	}
+	
 
 }

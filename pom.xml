@@ -6,6 +6,12 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Particle Playground</name>
 	<build>
+		<resources>
+			<resource>
+				<directory>src/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 		<sourceDirectory>src/main</sourceDirectory>
 		<testSourceDirectory>src/test</testSourceDirectory>
 		<plugins>
