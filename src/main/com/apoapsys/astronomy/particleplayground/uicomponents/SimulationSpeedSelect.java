@@ -7,14 +7,12 @@ import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.event.ListDataListener;
 
-public class SimulationSpeedSelect extends JComboBox {
+public class SimulationSpeedSelect extends JComboBox<Integer> {
 	
 	private SpeedComboBoxModel model = new SpeedComboBoxModel();
 	
 	public SimulationSpeedSelect() {
 		setModel(model);
-		
-		
 	}
 	
 	class SpeedComboBoxModel implements ComboBoxModel<Integer> {

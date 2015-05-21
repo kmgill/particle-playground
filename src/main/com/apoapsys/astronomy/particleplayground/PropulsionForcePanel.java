@@ -1,6 +1,8 @@
 package com.apoapsys.astronomy.particleplayground;
 
 import java.awt.GridLayout;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -12,7 +14,9 @@ import com.apoapsys.astronomy.math.MathExt;
 import com.apoapsys.astronomy.math.Vector;
 import com.apoapsys.astronomy.particleplayground.uicomponents.NumberField;
 import com.apoapsys.astronomy.particleplayground.uicomponents.NumberField.ValueChangedListener;
+import com.apoapsys.astronomy.particleplayground.uicomponents.OrientationTypeSelect;
 import com.apoapsys.astronomy.simulations.nbody.leapfrog.ParticlePropulsionForceProviderImpl;
+import com.apoapsys.astronomy.simulations.nbody.leapfrog.ParticlePropulsionForceProviderImpl.OrientationType;
 
 //ParticlePropulsionForceProvider
 public class PropulsionForcePanel extends AbstractOptionPanel {
@@ -27,10 +31,12 @@ public class PropulsionForcePanel extends AbstractOptionPanel {
 	private JSlider sldrThrottleLevel;
 	private NumberField txtThrust;
 	
+	private OrientationTypeSelect orientationSelect;
+	
 	public PropulsionForcePanel(ParticlePropulsionForceProviderImpl provider) {
 		this.provider = provider;
 		
-		setLayout(new GridLayout(4, 1));
+		setLayout(new GridLayout(5, 1));
 		
 		this.setBorder(BorderFactory.createTitledBorder("Particle Propulsion"));
 		
@@ -55,6 +61,17 @@ public class PropulsionForcePanel extends AbstractOptionPanel {
 		add(createPanel(chkEnabled = new JCheckBox("Enabled")));
 		chkEnabled.setSelected(provider.isEnabled());
 		chkEnabled.addChangeListener(changeListener);
+
+		orientationSelect = new OrientationTypeSelect();
+		add(createLabeledPanel("Orientation:", orientationSelect));
+		orientationSelect.addItemListener(new ItemListener() {
+
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				updateProviderFromComponents();
+			}
+			
+		});
 		
 		add(createLabeledPanel("Facing:", 
 				facingX = new NumberField(provider.getFacing().x),
@@ -80,6 +97,7 @@ public class PropulsionForcePanel extends AbstractOptionPanel {
 	
 	protected void updateProviderFromComponents() {
 		provider.setEnabled(chkEnabled.isSelected());
+		provider.setOrientation((OrientationType) orientationSelect.getSelectedItem());
 		provider.setFacing(new Vector(facingX.getNumberValue(), facingY.getNumberValue(), facingZ.getNumberValue()));
 		provider.setThrottleLevel(sldrThrottleLevel.getValue() / 100.0);
 		provider.setThrust(txtThrust.getNumberValue());
