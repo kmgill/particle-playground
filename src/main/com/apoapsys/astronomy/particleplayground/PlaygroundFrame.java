@@ -20,6 +20,7 @@ import com.apoapsys.astronomy.particleplayground.uicomponents.RunPauseButton;
 import com.apoapsys.astronomy.simulations.nbody.Particle;
 import com.apoapsys.astronomy.simulations.nbody.leapfrog.LeapFrogSimulator;
 import com.apoapsys.astronomy.simulations.nbody.leapfrog.NewtonianGravityForceProviderImpl;
+import com.apoapsys.astronomy.simulations.nbody.leapfrog.ParticlePropulsionForceProviderImpl;
 import com.apoapsys.astronomy.simulations.nbody.leapfrog.SimulationForceProvider;
 import com.jogamp.opengl.util.FPSAnimator;
 
@@ -59,7 +60,11 @@ public class PlaygroundFrame extends JFrame {
 		for (SimulationForceProvider provider : simulator.getSimulationForceProviders()) {
 			forcesPanel.add(createForcePanel(provider));
 		}
-		
+		for (Particle particle : simulator.getParticles()) {
+			for (SimulationForceProvider provider : particle.ownForces) {
+				forcesPanel.add(createForcePanel(provider));
+			}
+		}
 		
 		
 		emitterPropertiesPanel = new JPanel();
@@ -110,15 +115,34 @@ public class PlaygroundFrame extends JFrame {
 			}
 		});
 		
+		JButton btnReset = new JButton("Reset");
+		toolbar.add(btnReset);
+		btnReset.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				resetSimulation();
+			}
+			
+		});
+		
 		
 		final FPSAnimator animator = new FPSAnimator(simPanel, 60);
 		animator.start();
 		
 	}
 	
+	protected void resetSimulation() {
+		simThread.setPaused(true);
+		// Delete all particles
+		simThread.setPaused(false);
+	}
+	
 	protected JPanel createForcePanel(SimulationForceProvider provider) {
 		if (provider instanceof NewtonianGravityForceProviderImpl) {
 			return new NewtonianForcePanel((NewtonianGravityForceProviderImpl) provider);
+		} else if (provider instanceof ParticlePropulsionForceProviderImpl) {
+			return new PropulsionForcePanel((ParticlePropulsionForceProviderImpl)provider);
 		} else {
 			return null;
 		}

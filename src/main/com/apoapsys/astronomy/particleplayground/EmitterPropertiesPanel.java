@@ -11,25 +11,26 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import com.apoapsys.astronomy.math.Vector;
+import com.apoapsys.astronomy.particleplayground.uicomponents.NumberField;
+import com.apoapsys.astronomy.particleplayground.uicomponents.NumberField.ValueChangedListener;
 
 public class EmitterPropertiesPanel extends AbstractOptionPanel {
 	
 	private ParticleEmitter particleEmitter;
 	
-	private JTextField locationX;
-	private JTextField locationY;
-	private JTextField locationZ;
+	private NumberField locationX;
+	private NumberField locationY;
+	private NumberField locationZ;
 	
-	private JTextField facingX;
-	private JTextField facingY;
-	private JTextField facingZ;
+	private NumberField facingX;
+	private NumberField facingY;
+	private NumberField facingZ;
 	
-	private JTextField velocity;
-	private JTextField mass;
-	private JTextField radius;
+	private NumberField velocity;
+	private NumberField mass;
+	private NumberField radius;
 	
 	private JPanel color;
 	
@@ -39,21 +40,42 @@ public class EmitterPropertiesPanel extends AbstractOptionPanel {
 		setLayout(new GridLayout(7, 1));
 		
 		this.setBorder(BorderFactory.createTitledBorder("Particle Emitter"));
+		
+		ValueChangedListener valueChangedListener = new ValueChangedListener() {
 
+			@Override
+			public void onValueChanged(double newValue) {
+				updateEmitterFromComponents();
+			}
+			
+		};
+		
 		add(createLabeledPanel("Location:", 
-				locationX = new JTextField(""+particleEmitter.getLocation().x),
-				locationY = new JTextField(""+particleEmitter.getLocation().y),
-				locationZ = new JTextField(""+particleEmitter.getLocation().z)));
+				locationX = new NumberField(particleEmitter.getLocation().x),
+				locationY = new NumberField(particleEmitter.getLocation().y),
+				locationZ = new NumberField(particleEmitter.getLocation().z)));
+		
+		locationX.addValueChangedListener(valueChangedListener);
+		locationY.addValueChangedListener(valueChangedListener);
+		locationZ.addValueChangedListener(valueChangedListener);
+		
 		
 		add(createLabeledPanel("Facing:", 
-				facingX = new JTextField(""+particleEmitter.getFacing().x),
-				facingY = new JTextField(""+particleEmitter.getFacing().y),
-				facingZ = new JTextField(""+particleEmitter.getFacing().z)));
+				facingX = new NumberField(particleEmitter.getFacing().x),
+				facingY = new NumberField(particleEmitter.getFacing().y),
+				facingZ = new NumberField(particleEmitter.getFacing().z)));
 		
-		add(createLabeledPanel("Velocity:", velocity = new JTextField(""+particleEmitter.getVelocity())));
-		add(createLabeledPanel("Mass:", mass = new JTextField(""+particleEmitter.getMass())));
-		add(createLabeledPanel("Radius:", radius = new JTextField(""+particleEmitter.getRadius())));
+		facingX.addValueChangedListener(valueChangedListener);
+		facingY.addValueChangedListener(valueChangedListener);
+		facingZ.addValueChangedListener(valueChangedListener);
 		
+		add(createLabeledPanel("Velocity:", velocity = new NumberField(particleEmitter.getVelocity())));
+		add(createLabeledPanel("Mass:", mass = new NumberField(particleEmitter.getMass())));
+		add(createLabeledPanel("Radius:", radius = new NumberField(particleEmitter.getRadius())));
+		
+		velocity.addValueChangedListener(valueChangedListener);
+		mass.addValueChangedListener(valueChangedListener);
+		radius.addValueChangedListener(valueChangedListener);
 		
 		color = new JPanel();
 		color.setBackground(particleEmitter.getColor());

@@ -6,28 +6,43 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JTextField;
 
+import com.apoapsys.astronomy.particleplayground.uicomponents.NumberField;
+import com.apoapsys.astronomy.particleplayground.uicomponents.NumberField.ValueChangedListener;
 import com.apoapsys.astronomy.simulations.nbody.leapfrog.NewtonianGravityForceProviderImpl;
 
 public class NewtonianForcePanel extends AbstractOptionPanel {
 	
 	private NewtonianGravityForceProviderImpl forceProvider;
 	
-	private JTextField txtMultiplier;
-	private JTextField txtBrownian;
-	private JTextField txtDrag;
-	private JTextField txtDamping;
+	private NumberField txtMultiplier;
+	private NumberField txtBrownian;
+	private NumberField txtDrag;
+	private NumberField txtDamping;
 	
 	public NewtonianForcePanel(NewtonianGravityForceProviderImpl forceProvider) {
 		this.forceProvider = forceProvider;
 		
 		this.setBorder(BorderFactory.createTitledBorder("Newtonian"));
 		
-		txtMultiplier = new JTextField(""+forceProvider.getMultiplier());
-		txtBrownian = new JTextField(""+forceProvider.getBrownian());
-		txtDrag = new JTextField(""+forceProvider.getDrag());
-		txtDamping = new JTextField(""+forceProvider.getDamp());
+		ValueChangedListener valueChangedListener = new ValueChangedListener() {
+
+			@Override
+			public void onValueChanged(double newValue) {
+				updateForceFromComponents();
+			}
+			
+		};
+		
+		txtMultiplier = new NumberField(forceProvider.getMultiplier());
+		txtBrownian = new NumberField(forceProvider.getBrownian());
+		txtDrag = new NumberField(forceProvider.getDrag());
+		txtDamping = new NumberField(forceProvider.getDamp());
+		
+		txtMultiplier.addValueChangedListener(valueChangedListener);
+		txtBrownian.addValueChangedListener(valueChangedListener);
+		txtDrag.addValueChangedListener(valueChangedListener);
+		txtDamping.addValueChangedListener(valueChangedListener);
 		
 		setLayout(new GridLayout(5, 1));
 

@@ -138,6 +138,8 @@ public class ParticleGJPanel extends GLJPanel implements GLEventListener, KeyLis
 		    gl.glDisable(GL2.GL_LIGHTING);
 		    for (Particle particle : simulator.getParticles()) {
 				if (centerOn != null && particle != centerOn) {
+					
+					
 					drawEphemerisLine(particle, centerOn, gl);
 				}
 			}
