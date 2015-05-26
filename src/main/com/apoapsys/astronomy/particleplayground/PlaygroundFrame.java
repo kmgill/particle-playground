@@ -15,7 +15,9 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 
+import com.apoapsys.astronomy.math.MathExt;
 import com.apoapsys.astronomy.math.Vector;
+import com.apoapsys.astronomy.math.Vectors;
 import com.apoapsys.astronomy.particleplayground.uicomponents.RunPauseButton;
 import com.apoapsys.astronomy.simulations.nbody.Particle;
 import com.apoapsys.astronomy.simulations.nbody.leapfrog.LeapFrogSimulator;
@@ -31,6 +33,7 @@ public class PlaygroundFrame extends JFrame {
 	private ParticleGJPanel simPanel;
 	
 	private JPanel emitterPropertiesPanel;
+	private JPanel forcesPanel;
 	
 	public PlaygroundFrame(final LeapFrogSimulator simulator, final SimulationThread simThread) {
 		setTitle("Particle Playground");
@@ -52,7 +55,7 @@ public class PlaygroundFrame extends JFrame {
 		tabbedPane.add("Simulation", new SimulationOptionsPanel(simulator, simThread, simPanel));
 
 		
-		JPanel forcesPanel = new JPanel();
+		forcesPanel = new JPanel();
 		forcesPanel.setLayout(new GridLayout(3, 1, 3, 3));
 		tabbedPane.add("Forces", forcesPanel);
 		
@@ -115,6 +118,18 @@ public class PlaygroundFrame extends JFrame {
 			}
 		});
 		
+		JButton btnAddSpacecraft = new JButton("New Spacecraft");
+		toolbar.add(btnAddSpacecraft);
+		btnAddSpacecraft.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				createEarthDepartingSpacecraft();
+			}
+			
+			
+		});
+		
 		JButton btnReset = new JButton("Reset");
 		toolbar.add(btnReset);
 		btnReset.addActionListener(new ActionListener() {
@@ -130,6 +145,51 @@ public class PlaygroundFrame extends JFrame {
 		final FPSAnimator animator = new FPSAnimator(simPanel, 60);
 		animator.start();
 		
+	}
+	
+	public void createEarthDepartingSpacecraft() {
+		for (Particle particle : simulator.getParticles()) {
+			if (particle.body.getName().equals("Earth")) {
+				
+				Particle spacecraft = createSimpleSelfPropelledSpacecraft(particle);
+				
+				simThread.setPaused(true);
+				simulator.addParticle(spacecraft);
+				forcesPanel.add(createForcePanel(spacecraft.ownForces.get(0)));
+				simThread.setPaused(false);
+				
+			}
+		}
+	}
+	
+	public Particle createSimpleSelfPropelledSpacecraft(Particle origin) {
+		ParticleEmitter emitter = new ParticleEmitter();
+		emitter.setMass(27000);
+		
+		Vector location = origin.position.clone().add(new Vector(-(6371 + 200000) * 1000 , 0, (6371 + 200000) * 1000 ));
+		location.rotate(MathExt.radians(1), Vectors.Y_AXIS);
+		emitter.setLocation(location);
+		
+		Vector facing = origin.velocity.clone().normalize();
+		facing.rotate(MathExt.radians(1), Vectors.Y_AXIS);
+		
+		emitter.setFacing(facing);
+		emitter.setVelocity(origin.velocity.length());
+		emitter.setRadius(15);
+		emitter.setColor(Color.GREEN);
+
+		Particle spacecraft = emitter.createParticle();
+		spacecraft.body.setName("Sample Spacecraft");
+
+		ParticlePropulsionForceProviderImpl propulsion = new ParticlePropulsionForceProviderImpl();
+		propulsion.setEnabled(false);
+		propulsion.setFacing(facing.clone().inverse());
+		propulsion.setThrottleLevel(1.0); // 100% of capacity
+		propulsion.setThrust(0.1);
+		spacecraft.ownForces.add(propulsion);
+
+		return spacecraft;
+
 	}
 	
 	protected void resetSimulation() {

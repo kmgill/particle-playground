@@ -412,7 +412,7 @@ public class ParticleGJPanel extends GLJPanel implements GLEventListener, KeyLis
 				examineView.setPitch(examineView.getPitch() + deltaY * rotateSpeed);
 				examineView.setRoll(examineView.getRoll() + deltaX * rotateSpeed);
 			} else {
-				examineView.rotate(-deltaY * rotateSpeed, -deltaX * rotateSpeed);
+				examineView.rotate(-deltaY * rotateSpeed, deltaX * rotateSpeed);
 			}
 
 			repaint();

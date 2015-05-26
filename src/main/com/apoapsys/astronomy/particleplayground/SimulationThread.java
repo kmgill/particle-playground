@@ -17,10 +17,16 @@ public class SimulationThread extends Thread {
 		
 		while(!stop) {
 			double now = System.currentTimeMillis();
-			
+
 			if (!paused) {
 				simulator.step((now - last) * speed );
 				last = now;
+				
+				try {
+					Thread.sleep(1);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			} else {
 				try {
 					Thread.sleep(100);
